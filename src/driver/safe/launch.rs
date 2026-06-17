@@ -36,7 +36,7 @@ pub struct LaunchConfig {
 #[derive(Clone, Copy, Debug)]
 pub enum SharedMemoryConfig {
     Fixed(usize),
-    Dynamic(unsafe extern "C" fn (block_size: std::ffi::c_int) -> usize),
+    Dynamic(unsafe extern "C" fn(block_size: std::ffi::c_int) -> usize),
 }
 
 impl SharedMemoryConfig {
@@ -48,12 +48,18 @@ impl SharedMemoryConfig {
     fn with_block_size(&self, block_size: u32) -> u32 {
         match self {
             Self::Fixed(val) => {
-                debug_assert!(*val <= u32::MAX as usize, "shared memory size exceeds u32::MAX");
+                debug_assert!(
+                    *val <= u32::MAX as usize,
+                    "shared memory size exceeds u32::MAX"
+                );
                 *val as u32
             }
             Self::Dynamic(func) => unsafe {
                 let smem = func(block_size as std::ffi::c_int);
-                debug_assert!(smem <= u32::MAX as usize, "dynamic shared memory size exceeds u32::MAX");
+                debug_assert!(
+                    smem <= u32::MAX as usize,
+                    "dynamic shared memory size exceeds u32::MAX"
+                );
                 smem as u32
             },
         }
@@ -114,7 +120,10 @@ impl LaunchConfig {
                     block_size_limit.unwrap_or(0),
                     None,
                 )?;
-                debug_assert!(smem_size <= u32::MAX as usize, "shared memory size exceeds u32::MAX");
+                debug_assert!(
+                    smem_size <= u32::MAX as usize,
+                    "shared memory size exceeds u32::MAX"
+                );
                 (g, b, smem_size as u32)
             }
             SharedMemoryConfig::Dynamic(block_size_to_smem_size) => {
@@ -125,7 +134,10 @@ impl LaunchConfig {
                     None,
                 )?;
                 let smem = unsafe { block_size_to_smem_size(b as std::ffi::c_int) };
-                debug_assert!(smem <= u32::MAX as usize, "dynamic shared memory size exceeds u32::MAX");
+                debug_assert!(
+                    smem <= u32::MAX as usize,
+                    "dynamic shared memory size exceeds u32::MAX"
+                );
                 (g, b, smem as u32)
             }
         };

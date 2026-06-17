@@ -71,6 +71,9 @@ fn main() -> Result<(), DriverError> {
     println!(" === Optimal Launch Configuration for {n} elements (sin_kernel) ===");
     println!("  Suggested block size:     {}", launch_config.block_dim.0);
     println!("  grid size:                {}", launch_config.grid_dim.0);
-    println!("  Total threads per grid:   {}", launch_config.block_dim.0 * launch_config.grid_dim.0);
+    println!(
+        "  Total threads per grid:   {}",
+        launch_config.block_dim.0 * launch_config.grid_dim.0
+    );
     Ok(())
 }

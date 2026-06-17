@@ -2368,7 +2368,9 @@ impl CudaFunction {
     /// [`cudaOccupancyMaxPotentialBlockSizeWithFlags`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1gd0524825c5c01bbc9a5e29e890745800)
     pub fn occupancy_max_potential_block_size(
         &self,
-        block_size_to_dynamic_smem_size: Option<unsafe extern "C" fn(block_size: std::ffi::c_int) -> usize>,
+        block_size_to_dynamic_smem_size: Option<
+            unsafe extern "C" fn(block_size: std::ffi::c_int) -> usize,
+        >,
         dynamic_smem_size: usize,
         block_size_limit: u32,
         flags: Option<sys::CUoccupancy_flags_enum>,
