@@ -57,7 +57,7 @@ fn main() -> Result<(), DriverError> {
 
     // Use occupancy API to get optimal launch configuration
     let (min_grid_size, block_size) =
-        sin_kernel.occupancy_max_potential_block_size(None, 0, 0, None)?;
+        sin_kernel.occupancy_max_potential_block_size_with_flags(None, 0, 0, None)?;
 
     println!("=== Optimal Launch Configuration (sin_kernel) ===");
     println!("  Suggested block size:     {}", block_size);

@@ -35,7 +35,7 @@ pub struct LaunchConfig {
 /// block sizes.
 #[derive(Clone, Copy, Debug)]
 pub enum SharedMemoryConfig {
-    Fixed(usize),
+    Fixed(u32),
     Dynamic(unsafe extern "C" fn(block_size: std::ffi::c_int) -> usize),
 }
 
@@ -47,13 +47,7 @@ impl SharedMemoryConfig {
 
     fn with_block_size(&self, block_size: u32) -> u32 {
         match self {
-            Self::Fixed(val) => {
-                debug_assert!(
-                    *val <= u32::MAX as usize,
-                    "shared memory size exceeds u32::MAX"
-                );
-                *val as u32
-            }
+            Self::Fixed(val) => *val,
             Self::Dynamic(func) => unsafe {
                 let smem = func(block_size as std::ffi::c_int);
                 debug_assert!(
@@ -114,20 +108,16 @@ impl LaunchConfig {
         debug_assert!(n > 0, "n must be greater than 0");
         let (min_grid_size, block_size, shared_mem_bytes) = match smem {
             SharedMemoryConfig::Fixed(smem_size) => {
-                let (g, b) = func.occupancy_max_potential_block_size(
+                let (g, b) = func.occupancy_max_potential_block_size_with_flags(
                     None,
-                    smem_size,
+                    smem_size as usize,
                     block_size_limit.unwrap_or(0),
                     None,
                 )?;
-                debug_assert!(
-                    smem_size <= u32::MAX as usize,
-                    "shared memory size exceeds u32::MAX"
-                );
-                (g, b, smem_size as u32)
+                (g, b, smem_size)
             }
             SharedMemoryConfig::Dynamic(block_size_to_smem_size) => {
-                let (g, b) = func.occupancy_max_potential_block_size(
+                let (g, b) = func.occupancy_max_potential_block_size_with_flags(
                     Some(block_size_to_smem_size),
                     0,
                     block_size_limit.unwrap_or(0),

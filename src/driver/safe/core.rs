@@ -2366,7 +2366,7 @@ impl CudaFunction {
     /// # See Also
     ///
     /// [`cudaOccupancyMaxPotentialBlockSizeWithFlags`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1gd0524825c5c01bbc9a5e29e890745800)
-    pub fn occupancy_max_potential_block_size(
+    pub fn occupancy_max_potential_block_size_with_flags(
         &self,
         block_size_to_dynamic_smem_size: Option<
             unsafe extern "C" fn(block_size: std::ffi::c_int) -> usize,
@@ -2393,6 +2393,26 @@ impl CudaFunction {
         };
 
         Ok((min_grid_size as u32, block_size as u32))
+    }
+
+    /// This function is **not** consistent with the official nvidia documentation and will be
+    /// removed in the future.
+    /// Please use [CudaFunction::occupancy_max_potential_block_size_with_flags] or the
+    /// `SharedMemoryConfig` wrapper instead.
+    #[deprecated]
+    pub fn occupancy_max_potential_block_size(
+        &self,
+        block_size_to_dynamic_smem_size: unsafe extern "C" fn(block_size: std::ffi::c_int) -> usize,
+        dynamic_smem_size: usize,
+        block_size_limit: u32,
+        flags: Option<sys::CUoccupancy_flags_enum>,
+    ) -> Result<(u32, u32), result::DriverError> {
+        self.occupancy_max_potential_block_size_with_flags(
+            Some(block_size_to_dynamic_smem_size),
+            dynamic_smem_size,
+            block_size_limit,
+            flags,
+        )
     }
 
     #[cfg(not(any(
